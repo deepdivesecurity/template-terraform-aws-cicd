@@ -12,11 +12,7 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v3
 
-      # Install tflint
-      - name: Install tflint
-        run: |
-          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
-          tflint --version
+      - uses: terraform-linters/setup-tflint@v4
 
       # Install terraform-docs
       - name: Install terraform-docs
