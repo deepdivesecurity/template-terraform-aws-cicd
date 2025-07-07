@@ -16,6 +16,7 @@ jobs:
       - name: Install tflint
         run: |
           curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+          tflint --version
 
       # Install terraform-docs
       - name: Install terraform-docs
@@ -24,6 +25,7 @@ jobs:
           tar -xzf terraform-docs.tar.gz
           chmod +x terraform-docs
           mv terraform-docs /usr/local/bin/terraform-docs
+          terraform-docs --version
 
       - name: Run pre-commit hooks
         uses: pre-commit/action@v3.0.1
