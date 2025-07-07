@@ -14,14 +14,5 @@ jobs:
 
       - uses: terraform-linters/setup-tflint@v4
 
-      # Install terraform-docs
-      - name: Install terraform-docs
-        run: |
-          curl -Lo ./terraform-docs.tar.gz https://github.com/terraform-docs/terraform-docs/releases/download/v0.20.0/terraform-docs-v0.20.0-$(uname | tr '[:upper:]' '[:lower:]')-amd64.tar.gz
-          tar -xzf terraform-docs.tar.gz
-          chmod +x terraform-docs
-          mv terraform-docs /usr/local/bin/terraform-docs
-          terraform-docs --version
-
       - name: Run pre-commit hooks
         uses: pre-commit/action@v3.0.1
