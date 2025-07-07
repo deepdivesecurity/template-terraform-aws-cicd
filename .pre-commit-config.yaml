@@ -8,13 +8,13 @@ repos:
       - id: terraform_docs
 
   - repo: https://github.com/bridgecrewio/checkov
-    rev: 3.2.447  # Latest stable Checkov
+    rev: 3.2.447
     hooks:
       - id: checkov
         args: ["--hard-fail-on", "HIGH"]
 
   - repo: https://github.com/aquasecurity/tfsec
-    rev: v1.28.14  # Latest stable tfsec
+    rev: v1.28.14
     hooks:
       - id: tfsec
         args: ["--minimum-severity", "HIGH"]
