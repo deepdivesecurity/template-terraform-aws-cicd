@@ -1,4 +1,7 @@
 # AWS Org Terraform
+
+![Terraform Pre-Commit](https://github.com/deepdivesecurity/terraform-aws-org/actions/workflows/pre-commit/badge.svg)
+
 Terraform files to setup AWS org
 
 <!-- BEGIN_TF_DOCS -->
