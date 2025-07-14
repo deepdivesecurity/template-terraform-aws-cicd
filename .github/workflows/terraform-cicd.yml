@@ -1,0 +1,70 @@
+name: Terraform CI/CD
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      # Configure OIDC
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Generate a backend.hcl file for use with Terraform init
+      - name: Write backend config
+        run: |
+          cat > backend.hcl <<EOF
+          bucket         = "${{ secrets.TF_BACKEND_BUCKET }}"
+          key            = "${{ secrets.TF_BACKEND_KEY }}"
+          region         = "${{ secrets.AWS_REGION }}"
+          dynamodb_table = "${{ secrets.TF_BACKEND_DDB }}"
+          encrypt        = true
+          EOF
+
+      # Init with backend config
+      - name: Terraform Init
+        run: terraform init -backend-config=backend.hcl
+
+      # Format Terraform
+      - name: Terraform Format
+        run: terraform fmt -check
+
+      # Validate Terraform
+      - name: Terraform Validate
+        run: terraform validate
+
+      # Plan Terraform if the GitHub event is a PR
+      - name: Terraform Plan
+        if: github.event_name == 'pull_request'
+        id: plan
+        run: terraform plan -no-color | tee plan.txt
+
+      # Post the plan to the PR as a comment
+      - name: Post Plan to PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: plan.txt
+
+      # Apply the changes
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve 

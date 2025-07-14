@@ -2,22 +2,28 @@ repos:
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     rev: v1.99.4
     hooks:
+      # Format the Terraform code
       - id: terraform_fmt
+      # Validate the Terraform code
       - id: terraform_validate
+      # Run tflint to ensure coding standards are met
       - id: terraform_tflint
-
+      
+  # Run terraform-docs to generate the README.md file
   - repo: https://github.com/terraform-docs/terraform-docs
     rev: v0.20.0
     hooks:
       - id: terraform-docs-go
         args: ["markdown", "table", "--output-file", "README.md", "."]
 
+  # Run checkov to ensure the Terraform code is secure
   - repo: https://github.com/bridgecrewio/checkov
     rev: 3.2.447
     hooks:
       - id: checkov
         args: ["--hard-fail-on", "HIGH"]
 
+  # Run tfsec to ensure the Terraform code is secure
   - repo: https://github.com/aquasecurity/tfsec
     rev: v1.28.14
     hooks:
