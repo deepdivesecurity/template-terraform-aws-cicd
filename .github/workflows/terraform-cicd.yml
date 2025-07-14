@@ -1,10 +1,12 @@
-name: Terraform CI/CD
+name: Terraform CI/CD with Pre-Commit
 
 on:
   pull_request:
-    branches: [main]
+    branches:
+      - main
   push:
-    branches: [main]
+    branches:
+      - '**'   # allow push to any branch so pre-commit always runs
 
 permissions:
   id-token: write
@@ -12,8 +14,28 @@ permissions:
   pull-requests: write
 
 jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Setup tflint
+        uses: terraform-linters/setup-tflint@v4
+
+      - name: Run pre-commit hooks
+        uses: pre-commit/action@v3.0.1
+
   terraform:
     runs-on: ubuntu-latest
+    needs: pre-commit
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,7 +50,7 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # Generate a backend.hcl file for use with Terraform init
+      # Generate backend.hcl for Terraform init
       - name: Write backend config
         run: |
           cat > backend.hcl <<EOF
@@ -39,7 +61,7 @@ jobs:
           encrypt        = true
           EOF
 
-      # Init with backend config
+      # Initialize Terraform
       - name: Terraform Init
         run: terraform init -backend-config=backend.hcl
 
@@ -51,20 +73,20 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
-      # Plan Terraform if the GitHub event is a PR
+      # Terraform plan
       - name: Terraform Plan
         if: github.event_name == 'pull_request'
         id: plan
         run: terraform plan -no-color | tee plan.txt
 
-      # Post the plan to the PR as a comment
+      # Comment Terraform plan to PR
       - name: Post Plan to PR
         if: github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           path: plan.txt
 
-      # Apply the changes
+      # Apply Terraform changes if all else passes and the branch is main
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve 
+        run: terraform apply -auto-approve
