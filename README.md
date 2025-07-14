@@ -2,7 +2,7 @@
 
 ![Terraform CI/CD](https://github.com/deepdivesecurity/terraform-aws-org/actions/workflows/terraform-cicd.yml/badge.svg)
 
-Terraform files to setup AWS org
+AWS organization setup
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
