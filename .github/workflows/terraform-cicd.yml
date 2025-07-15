@@ -64,8 +64,6 @@ jobs:
           bucket         = "${{ secrets.TF_BACKEND_BUCKET }}"
           key            = "${{ secrets.TF_BACKEND_KEY }}"
           region         = "${{ secrets.AWS_REGION }}"
-          encrypt        = true
-          use_lockfile   = true
           EOF
 
       # Initialize Terraform
